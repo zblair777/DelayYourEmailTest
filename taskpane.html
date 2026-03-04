@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <script src="https://appsforoffice.microsoft.com/lib/1/hosted/office.js"></script>
+
+  <style>
+    body {
+      font-family: "Aptos", "Segoe UI", sans-serif;
+      font-size: 12pt;
+      color: #111;
+      margin: 12px;
+    }
+
+    .delay-btn {
+      background-color: #000;
+      color: #fff;
+      border: 2px solid #000;
+      border-radius: 6px;
+      padding: 10px 14px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      width: 100%;
+      margin-bottom: 10px;
+      transition: background-color 0.1s ease, border-color 0.1s ease;
+    }
+
+    .delay-btn:hover { background-color: #111; }
+    .delay-btn:active { background-color: #666; border-color: #444; }
+    .delay-btn:disabled {
+      background-color: #999;
+      border-color: #999;
+      cursor: not-allowed;
+      opacity: 0.9;
+    }
+
+    .status {
+      margin-top: 10px;
+      padding: 10px;
+      border-radius: 6px;
+      background: #f3f3f3;
+      font-size: 11pt;
+      line-height: 1.35;
+    }
+
+    .status strong { display: block; margin-bottom: 4px; }
+  </style>
+</head>
+
+<body>
+  <div>
+    Select a delay — it will schedule delivery and send immediately (Outlook will hold it until the scheduled time).
+  </div>
+  <br />
+
+  <button id="2hour" class="delay-btn">Send in 2 Hours</button>
+  <button id="4hour" class="delay-btn">Send in 4 Hours</button>
+  <button id="6hour" class="delay-btn">Send in 6 Hours</button>
+
+  <div id="status" class="status">
+    <strong>Status</strong>
+    Ready.
+  </div>
+
+<script>
+  Office.onReady((info) => {
+    if (info.host !== Office.HostType.Outlook) return;
+
+    wireButton("2hour", 2);
+    wireButton("4hour", 4);
+    wireButton("6hour", 6);
+  });
+
+  function wireButton(id, hours) {
+    document.getElementById(id).addEventListener("click", async () => {
+      setButtonsEnabled(false);
+      setStatus("Status", `Scheduling delivery for +${hours} hour(s)…`);
+
+      try {
+        const delayUntil = new Date(Date.now() + hours * 60 * 60 * 1000);
+
+        await setDelayAsync(delayUntil);
+
+        setStatus("Status", `Scheduled for ${delayUntil.toLocaleString()}. Sending now…`);
+
+        await sendAsync();
+
+        // If send succeeds, the compose window may close immediately.
+        // This status might only be visible briefly.
+        setStatus("Status", `Sent to Outbox / pending. Will deliver at ${delayUntil.toLocaleString()}.`);
+      } catch (err) {
+        console.error(err);
+        setStatus("Error", err && err.message ? err.message : String(err));
+        setButtonsEnabled(true);
+      }
+    });
+  }
+
+  function setButtonsEnabled(enabled) {
+    document.querySelectorAll(".delay-btn").forEach(btn => btn.disabled = !enabled);
+  }
+
+  function setStatus(title, message) {
+    const el = document.getElementById("status");
+    el.innerHTML = `<strong>${escapeHtml(title)}</strong>${escapeHtml(message)}`;
+  }
+
+  function setDelayAsync(delayUntil) {
+    return new Promise((resolve, reject) => {
+      const item = Office.context.mailbox.item;
+
+      if (!item || !item.delayDeliveryTime || typeof item.delayDeliveryTime.setAsync !== "function") {
+        reject(new Error("delayDeliveryTime isn’t available in this Outlook client/context."));
+        return;
+      }
+
+      item.delayDeliveryTime.setAsync(delayUntil, (r) => {
+        if (r.status === Office.AsyncResultStatus.Succeeded) resolve();
+        else reject(new Error(r.error?.message || "Failed to set delayed delivery time."));
+      });
+    });
+  }
+
+  function sendAsync() {
+    return new Promise((resolve, reject) => {
+      const item = Office.context.mailbox.item;
+
+      if (!item || typeof item.sendAsync !== "function") {
+        reject(new Error("sendAsync isn’t available in this Outlook client/context."));
+        return;
+      }
+
+      item.sendAsync((r) => {
+        if (r.status === Office.AsyncResultStatus.Succeeded) resolve();
+        else reject(new Error(r.error?.message || "Failed to send message."));
+      });
+    });
+  }
+
+  function escapeHtml(str) {
+    return String(str).replace(/[&<>"']/g, (m) => ({
+      "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;"
+    }[m]));
+  }
+</script>
+</body>
+</html>

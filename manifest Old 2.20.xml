@@ -1,0 +1,170 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<OfficeApp xmlns="http://schemas.microsoft.com/office/appforoffice/1.1"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns:bt="http://schemas.microsoft.com/office/officeappbasictypes/1.0"
+  xmlns:mailappor="http://schemas.microsoft.com/office/mailappversionoverrides/1.1" 
+  xsi:type="MailApp">
+
+  <Id>1e7e38da-7ad6-429a-9c6f-81aa1b9c9344</Id>
+  <Version>1.0.0.8</Version>
+  <ProviderName>BigCloudConsultants</ProviderName>
+  <DefaultLocale>en-US</DefaultLocale>
+  <DisplayName DefaultValue="Delay Your Emails"/>
+  <Description DefaultValue="An Add-in that delays emails by a number of hours."/>
+
+  <!-- Updated icons -->
+  <IconUrl DefaultValue="https://icy-field-029eab10f.3.azurestaticapps.net/assets/icon-32.png"/>
+  <HighResolutionIconUrl DefaultValue="https://icy-field-029eab10f.3.azurestaticapps.net/assets/icon-64.png"/>
+
+  <SupportUrl DefaultValue="https://learn.microsoft.com/office/dev/add-ins/overview/office-add-in-code-samples"/>
+
+  <!-- App domain must match SWA URL -->
+  <AppDomains>
+    <AppDomain>https://icy-field-029eab10f.3.azurestaticapps.net</AppDomain>
+  </AppDomains>
+
+  <Hosts>
+    <Host Name="Mailbox"/>
+  </Hosts>
+
+  <Requirements>
+    <Sets DefaultMinVersion="1.1">
+      <Set Name="MailBox" MinVersion="1.1"/>
+    </Sets>
+  </Requirements>
+
+   <FormSettings>
+    <Form xsi:type="ItemRead">
+      <DesktopSettings>
+
+        <SourceLocation DefaultValue="https://icy-field-029eab10f.3.azurestaticapps.net/taskpane.html"/>
+        <RequestedHeight>250</RequestedHeight>
+      </DesktopSettings>
+    </Form>
+  </FormSettings>
+
+  <Permissions>ReadWriteItem</Permissions>
+
+  <Rule xsi:type="RuleCollection" Mode="Or">
+    <Rule xsi:type="ItemIs" ItemType="Appointment" FormType="Edit"/>
+    <Rule xsi:type="ItemIs" ItemType="Message" FormType="Edit"/>
+  </Rule>
+
+  <DisableEntityHighlighting>false</DisableEntityHighlighting>
+
+  <VersionOverrides xmlns="http://schemas.microsoft.com/office/mailappversionoverrides" xsi:type="VersionOverridesV1_0">
+
+    <VersionOverrides xmlns="http://schemas.microsoft.com/office/mailappversionoverrides/1.1" xsi:type="VersionOverridesV1_1">
+
+      <Requirements>
+        <bt:Sets>
+          <bt:Set Name="Mailbox"/>
+        </bt:Sets>
+      </Requirements>
+
+      <Hosts>
+        <Host xsi:type="MailHost">
+
+          <Runtimes>
+            <!-- Commands runtime page -->
+            <Runtime resid="WebViewRuntime.Url"/>
+          </Runtimes>
+
+          <DesktopFormFactor>
+            <FunctionFile resid="Commands.Url"/>
+
+            <ExtensionPoint xsi:type="MessageComposeCommandSurface">
+              <OfficeTab id="TabDefault">
+
+                <Group id="msgComposeGroup">
+                  <Label resid="GroupLabel"/>
+
+                  <!-- Taskpane button -->
+                  <Control xsi:type="Button" id="composeOpenPaneButton">
+                    <Label resid="TaskpaneButton.Label"/>
+                    <Supertip>
+                      <Title resid="TaskpaneButton.Label"/>
+                      <Description resid="TaskpaneButton.Tooltip"/>
+                    </Supertip>
+                    <Icon>
+                      <bt:Image size="16" resid="Icon.16x16"/>
+                      <bt:Image size="32" resid="Icon.32x32"/>
+                      <bt:Image size="80" resid="Icon.80x80"/>
+                    </Icon>
+                    <Action xsi:type="ShowTaskpane">
+                      <SourceLocation resid="Taskpane.Url"/>
+                      <SupportsPinning>true</SupportsPinning>
+                    </Action>
+                  </Control>
+
+                  <!-- Action button -->
+                  <Control xsi:type="Button" id="ActionButton">
+                    <Label resid="ActionButton.Label"/>
+                    <Supertip>
+                      <Title resid="ActionButton.Label"/>
+                      <Description resid="ActionButton.Tooltip"/>
+                    </Supertip>
+                    <Icon>
+                      <bt:Image size="16" resid="Icon.16x16"/>
+                      <bt:Image size="32" resid="Icon.32x32"/>
+                      <bt:Image size="80" resid="Icon.80x80"/>
+                    </Icon>
+                    <Action xsi:type="ExecuteFunction">
+                      <FunctionName>action</FunctionName>
+                    </Action>
+                  </Control>
+
+                </Group>
+              </OfficeTab>
+            </ExtensionPoint>
+          </DesktopFormFactor>
+
+          <!-- Mobile -->
+          <MobileFormFactor>
+            <ExtensionPoint xsi:type="LaunchEvent">
+              <LaunchEvents>
+                <LaunchEvent Type="OnNewMessageCompose" FunctionName="onNewMessageComposeHandler"/>
+              </LaunchEvents>
+              <SourceLocation resid="WebViewRuntime.Url"/>
+            </ExtensionPoint>
+          </MobileFormFactor>
+
+        </Host>
+      </Hosts>
+
+      <Resources>
+
+        <bt:Images>
+          <bt:Image id="Icon.16x16" DefaultValue="https://icy-field-029eab10f.3.azurestaticapps.net/assets/icon-16.png"/>
+          <bt:Image id="Icon.32x32" DefaultValue="https://icy-field-029eab10f.3.azurestaticapps.net/assets/icon-32.png"/>
+          <bt:Image id="Icon.80x80" DefaultValue="https://icy-field-029eab10f.3.azurestaticapps.net/assets/icon-80.png"/>
+        </bt:Images>
+
+        <bt:Urls>
+          <!-- Commands page -->
+          <bt:Url id="Commands.Url" DefaultValue="https://icy-field-029eab10f.3.azurestaticapps.net/commands.html"/>
+
+          <!-- Taskpane -->
+          <bt:Url id="Taskpane.Url" DefaultValue="https://icy-field-029eab10f.3.azurestaticapps.net/taskpane.html"/>
+
+          <!-- Runtime (usually same as commands.html) -->
+          <bt:Url id="WebViewRuntime.Url" DefaultValue="https://icy-field-029eab10f.3.azurestaticapps.net/commands.html"/>
+        </bt:Urls>
+
+        <bt:ShortStrings>
+          <bt:String id="GroupLabel" DefaultValue="Delay Email"/>
+          <bt:String id="TaskpaneButton.Label" DefaultValue="Show Taskpane"/>
+          <bt:String id="ActionButton.Label" DefaultValue="Perform Action"/>
+        </bt:ShortStrings>
+
+        <bt:LongStrings>
+          <bt:String id="TaskpaneButton.Tooltip" DefaultValue="Open the Delay Email taskpane."/>
+          <bt:String id="ActionButton.Tooltip" DefaultValue="Perform the delay email action."/>
+        </bt:LongStrings>
+
+      </Resources>
+
+    </VersionOverrides>
+  </VersionOverrides>
+
+</OfficeApp>

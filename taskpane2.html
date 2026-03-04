@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <script src="https://appsforoffice.microsoft.com/lib/1/hosted/office.js"></script>
+
+  <style>
+    body {
+      font-family: 'Aptos', 'Segoe UI', sans-serif;
+      font-size: 12pt;
+      color: black;
+    }
+
+    .delay-btn {
+      background-color: #000;
+      color: #fff;
+      border: 2px solid #000;
+      border-radius: 4px;
+      padding: 8px 16px;
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      width: 100%;
+      margin-bottom: 12px;
+      transition: background-color 0.1s ease, border-color 0.1s ease;
+    }
+
+    /* Hover */
+    .delay-btn:hover {
+      background-color: #111;
+    }
+
+    /* Pressed (mouse down) */
+    .delay-btn:active {
+      background-color: #666;
+      border-color: #444;
+    }
+
+    /* Selected (stays pressed after click) */
+    .delay-btn.selected {
+      background-color: #555;
+      border-color: #999;
+    }
+  </style>
+</head>
+
+<body>
+  <div>
+    Please select an amount of time you would like your emails delayed.
+  </div>
+  <br>
+
+  <button id="2hour" class="delay-btn">2 Hours</button>
+  <button id="4hour" class="delay-btn">4 Hours</button>
+  <button id="6hour" class="delay-btn">6 Hours</button>
+
+  <img src="https://pnptelemetry.azurewebsites.net/pnp-officeaddins/samples/outlook-add-in-hello-world-run" />
+</body>
+
+<script>
+  Office.onReady((info) => {
+    if (info.host === Office.HostType.Outlook) {
+      wireButton("2hour", 2);
+      wireButton("4hour", 4);
+      wireButton("6hour", 6);
+    }
+  });
+
+  function wireButton(id, hours) {
+    document.getElementById(id).addEventListener("click", () => {
+      setSelected(id);
+      setDelayProperty(hours);
+    });
+  }
+
+  function setSelected(selectedId) {
+    document.querySelectorAll(".delay-btn").forEach(btn => {
+      btn.classList.remove("selected");
+    });
+    document.getElementById(selectedId).classList.add("selected");
+  }
+
+  function setDelayProperty(hours) {
+    const delayUntil = new Date(Date.now() + hours * 60 * 60 * 1000);
+
+    Office.context.mailbox.item.delayDeliveryTime.setAsync(
+      delayUntil,
+      (asyncResult) => {
+        if (asyncResult.status === Office.AsyncResultStatus.Succeeded) {
+          console.log("Email delivery scheduled successfully.");
+        } else {
+          console.error("Error scheduling email delivery: " + asyncResult.error.message);
+        }
+      }
+    );
+  }
+</script>
+</html>
