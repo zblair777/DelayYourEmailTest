@@ -9,8 +9,8 @@
   <Version>1.0.1.1</Version>
   <ProviderName>BigCloudConsultants</ProviderName>
   <DefaultLocale>en-US</DefaultLocale>
-  <DisplayName DefaultValue="Delay Your Emails"/>
-  <Description DefaultValue="An Add-in that delays emails by a number of hours."/>
+  <DisplayName DefaultValue="Snooze Your Emails"/>
+  <Description DefaultValue="An Add-in that Snoozes emails by a number of hours."/>
 
   <!-- Updated icons -->
   <IconUrl DefaultValue="https://icy-field-029eab10f.3.azurestaticapps.net/assets/icon-32.png"/>
@@ -200,19 +200,20 @@
         </bt:Urls>
 
         <bt:ShortStrings>
-          <bt:String id="GroupLabel" DefaultValue="Delay Email"/>
+          <bt:String id="GroupLabel" DefaultValue="Snooze Email"/>
           <bt:String id="TaskpaneButton.Label" DefaultValue="Show Taskpane"/>
           <bt:String id="ActionButton.Label" DefaultValue="Perform Action"/>
         </bt:ShortStrings>
 
         <bt:LongStrings>
-          <bt:String id="TaskpaneButton.Tooltip" DefaultValue="Open the Delay Email taskpane."/>
-          <bt:String id="ActionButton.Tooltip" DefaultValue="Perform the delay email action."/>
+          <bt:String id="TaskpaneButton.Tooltip" DefaultValue="Open the Snooze Email taskpane."/>
+          <bt:String id="ActionButton.Tooltip" DefaultValue="Perform the Snooze email action."/>
         </bt:LongStrings>
 
       </Resources>
 
     </VersionOverrides>
   </VersionOverrides>
+
 
 </OfficeApp>
