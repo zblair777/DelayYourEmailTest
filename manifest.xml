@@ -20,7 +20,7 @@
 
   <!-- App domain must match SWA URL -->
   <AppDomains>
-    <AppDomain>https://icy-field-029eab10f.3.azurestaticapps.net</AppDomain>
+    <AppDomain>https://jolly-tree-016155f0f.6.azurestaticapps.net</AppDomain>
   </AppDomains>
 
   <Hosts>
@@ -36,7 +36,7 @@
   <FormSettings>
     <Form xsi:type="ItemRead">
       <DesktopSettings>
-        <SourceLocation DefaultValue="https://icy-field-029eab10f.3.azurestaticapps.net/taskpane.html"/>
+        <SourceLocation DefaultValue="https://jolly-tree-016155f0f.6.azurestaticapps.net/taskpane.html"/>
         <RequestedHeight>250</RequestedHeight>
       </DesktopSettings>
     </Form>
@@ -190,13 +190,13 @@
 
         <bt:Urls>
           <!-- Commands page -->
-          <bt:Url id="Commands.Url" DefaultValue="https://icy-field-029eab10f.3.azurestaticapps.net/commands.html"/>
+          <bt:Url id="Commands.Url" DefaultValue="https://jolly-tree-016155f0f.6.azurestaticapps.net/commands.html"/>
 
           <!-- Taskpane -->
-          <bt:Url id="Taskpane.Url" DefaultValue="https://icy-field-029eab10f.3.azurestaticapps.net/taskpane.html"/>
+          <bt:Url id="Taskpane.Url" DefaultValue="https://jolly-tree-016155f0f.6.azurestaticapps.net/taskpane.html"/>
 
           <!-- Runtime (usually same as commands.html) -->
-          <bt:Url id="WebViewRuntime.Url" DefaultValue="https://icy-field-029eab10f.3.azurestaticapps.net/commands.html"/>
+          <bt:Url id="WebViewRuntime.Url" DefaultValue="https://jolly-tree-016155f0f.6.azurestaticapps.net/commands.html"/>
         </bt:Urls>
 
         <bt:ShortStrings>
@@ -217,3 +217,4 @@
 
 
 </OfficeApp>
+
