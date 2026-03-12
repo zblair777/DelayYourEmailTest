@@ -60,6 +60,7 @@ module.exports = async (env, options) => {
           {
             from: "assets/*",
             to: "assets/[name][ext][query]",
+            noErrorOnMissing: true,  // add this line
           },
           {
             from: "manifest*.*",
