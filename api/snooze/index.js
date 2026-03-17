@@ -1,5 +1,4 @@
 const POWER_AUTOMATE_URL = "https://defaultee6eeac0ac6d4aceaadf634159dc6f.88.environment.api.powerplatform.com:443/powerautomate/automations/direct/workflows/1ac647e24dd04111b7688246d2c5bcd4/triggers/manual/paths/invoke?api-version=1";
-
 const CORS_HEADERS = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Methods": "POST, OPTIONS",
