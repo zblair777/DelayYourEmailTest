@@ -82,7 +82,7 @@
 
     wireSnoozeButton("snooze-4h",  () => 4,                    "4 hours");
     wireSnoozeButton("snooze-24h", () => 24,                   "24 hours");
-    wireSnoozeButton("snooze-nbd", nextBusinessDayHours,        "next business day");
+    wireSnoozeButton("snooze-nbd", () => 777,        "next business day");
     wireSnoozeButton("snooze-nw",  () => 168,                   "next week");
     wireSnoozeButton("snooze-13d", () => 312,                   "13 days");
     wireSnoozeButton("snooze-30d", () => 720,                   "30 days");
