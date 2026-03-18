@@ -139,7 +139,7 @@
 
         console.log("restId:", restId);
 
-        const hours = getHours();
+        const hours = Math.round(getHours());
         console.log("Snoozing for hours:", hours);
 
         const response = await fetch("/api/snooze", {
