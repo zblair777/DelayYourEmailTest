@@ -1,4 +1,4 @@
-const POWER_AUTOMATE_URL = "https://defaultee6eeac0ac6d4aceaadf634159dc6f.88.environment.api.powerplatform.com:443/powerautomate/automations/direct/workflows/1ac647e24dd04111b7688246d2c5bcd4/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=0TOmUrf55h56qrszM-0PhUMIDnp2ZWokvaPK9l217Ek";
+const POWER_AUTOMATE_URL = "https://defaultee6eeac0ac6d4aceaadf634159dc6f.88.environment.api.powerplatform.com:443/powerautomate/automations/direct/workflows/95e9f133d86a410e9764700938422d8a/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=CRdnV6Tzduut0Hvv28WVs_0Fka6HOnci2TUq1F5UJ0A";
 const CORS_HEADERS = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Methods": "POST, OPTIONS",
