@@ -156,6 +156,7 @@
         const dateStr = wakeTime.toLocaleDateString([], { weekday: 'short', month: 'short', day: 'numeric' });
         const timeStr = wakeTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
         setStatus("Snoozed ✓", `This email will return to your inbox on ${dateStr} at ${timeStr}.`);
+        setAllButtonsEnabled(true);
       } catch (err) {
         console.error("Snooze error:", err);
         setStatus("Error", err?.message || String(err));
