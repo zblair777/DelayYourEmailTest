@@ -90,12 +90,12 @@
   Office.onReady(async (info) => {
     if (info.host !== Office.HostType.Outlook) return;
 
-    wireSnoozeButton("snooze-4h",  () => 4,                    "4 hours");
-    wireSnoozeButton("snooze-24h", () => 24,                   "24 hours");
-    wireSnoozeButton("snooze-nbd", nextBusinessDayHours,        "next business day");
-    wireSnoozeButton("snooze-nw",  () => 168,                   "next week");
-    wireSnoozeButton("snooze-13d", () => 312,                   "13 days");
-    wireSnoozeButton("snooze-30d", () => 720,                   "30 days");
+    wireSnoozeButton("snooze-4h",  () => 4,                 "4 hours");
+    wireSnoozeButton("snooze-24h", () => 24,                "24 hours");
+    wireSnoozeButton("snooze-nbd", nextBusinessDayHours,    "next business day");
+    wireSnoozeButton("snooze-nw",  () => 168,               "next week");
+    wireSnoozeButton("snooze-13d", () => 312,               "13 days");
+    wireSnoozeButton("snooze-30d", () => 720,               "30 days");
 
     // Wait for the email to be fully loaded before enabling buttons
     await waitForItemReady();
@@ -174,57 +174,13 @@
   }
 
   /**
-   * Tries to get the best available email ID in order:
-   * 1. convertToRestId (Graph-compatible)
-   * 2. internetMessageId (with retries)
-   * 3. Raw EWS itemId as fallback
+   * Returns the raw EWS itemId directly.
+   * The Office 365 Outlook connector handles EWS IDs natively
+   * when authenticated to the correct account.
    */
   async function getBestItemId(item) {
     const rawId = item.itemId;
-
-    // 1. Try convertToRestId first
-    try {
-      const restId = Office.context.mailbox.convertToRestId(
-        rawId,
-        Office.MailboxEnums.RestVersion.v2_0
-      );
-      if (restId && restId !== rawId) {
-        console.log("Using restId:", restId);
-        return restId;
-      }
-    } catch (e) {
-      console.warn("convertToRestId failed:", e);
-    }
-
-    // 2. Try internet message ID with retries
-    try {
-      const msgId = await new Promise((resolve, reject) => {
-        let attempts = 0;
-        const tryGet = () => {
-          item.internetMessageId.getAsync((result) => {
-            if (result.status === Office.AsyncResultStatus.Succeeded && result.value) {
-              resolve(result.value);
-            } else if (attempts < 3) {
-              attempts++;
-              console.warn(`internetMessageId attempt ${attempts} failed, retrying...`);
-              setTimeout(tryGet, 500);
-            } else {
-              reject(result.error);
-            }
-          });
-        };
-        tryGet();
-      });
-      if (msgId) {
-        console.log("Using internetMessageId:", msgId);
-        return msgId;
-      }
-    } catch (e) {
-      console.warn("internetMessageId failed after retries:", e);
-    }
-
-    // 3. Fall back to raw EWS ID
-    console.warn("Falling back to raw itemId:", rawId);
+    console.log("Using raw itemId:", rawId);
     return rawId;
   }
 
