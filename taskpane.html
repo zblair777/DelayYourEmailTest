@@ -12,9 +12,18 @@
       margin: 12px;
     }
 
+    .section-label {
+      font-size: 10pt;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: #555;
+      margin: 14px 0 6px;
+    }
+
     .snooze-btn {
-      background-color: #000;
-      color: #fff;
+      background-color: #fff;
+      color: #000;
       border: 2px solid #000;
       border-radius: 6px;
       padding: 10px 14px;
@@ -23,175 +32,255 @@
       cursor: pointer;
       width: 100%;
       margin-bottom: 10px;
-      transition: background-color 0.1s ease, border-color 0.1s ease, opacity 0.1s ease;
+      transition: background-color 0.1s ease;
     }
 
-    .snooze-btn:hover {
-      background-color: #111;
-    }
-
-    .snooze-btn:active {
-      background-color: #666;
-      border-color: #444;
-    }
+    .snooze-btn:hover { background-color: #f0f0f0; }
+    .snooze-btn:active { background-color: #ddd; }
 
     .snooze-btn:disabled {
-      opacity: 0.6;
-      cursor: default;
+      background-color: #ccc;
+      border-color: #ccc;
+      color: #888;
+      cursor: not-allowed;
     }
 
-    #status {
-      margin-top: 12px;
-      line-height: 1.4;
+    .status {
+      margin-top: 10px;
+      padding: 10px;
+      border-radius: 6px;
+      background: #f3f3f3;
+      font-size: 11pt;
+      line-height: 1.35;
     }
 
-    #status strong {
-      display: block;
-      margin-bottom: 4px;
+    .status strong { display: block; margin-bottom: 4px; }
+
+    #loading-msg {
+      font-size: 10pt;
+      color: #888;
+      margin-bottom: 10px;
+      display: none;
     }
   </style>
 </head>
 
 <body>
-  <div>Please select an amount of time you would like this email snoozed.</div>
-  <br />
 
-  <button id="snooze-4h" class="snooze-btn">4 Hours</button>
-  <button id="snooze-24h" class="snooze-btn">24 Hours</button>
-  <button id="snooze-nbd" class="snooze-btn">Next Business Day</button>
-  <button id="snooze-nw" class="snooze-btn">Next Week</button>
-  <button id="snooze-13d" class="snooze-btn">13 Days</button>
-  <button id="snooze-30d" class="snooze-btn">30 Days</button>
+  <div class="section-label">Snooze Email</div>
+  <div style="font-size:10pt;color:#555;margin-bottom:8px;">
+    Hides this email and returns it to your inbox after the selected time.
+  </div>
 
-  <div id="status"></div>
+  <div id="loading-msg">⏳ Waiting for email to fully load…</div>
 
-  <script>
-    Office.onReady((info) => {
-      if (info.host !== Office.HostType.Outlook) return;
+  <button id="snooze-4h"  class="snooze-btn" disabled>⏱ 4 Hours</button>
+  <button id="snooze-24h" class="snooze-btn" disabled>⏱ 24 Hours</button>
+  <button id="snooze-nbd" class="snooze-btn" disabled>⏱ Next Business Day</button>
+  <button id="snooze-nw"  class="snooze-btn" disabled>⏱ Next Week</button>
+  <button id="snooze-13d" class="snooze-btn" disabled>⏱ 13 Days</button>
+  <button id="snooze-30d" class="snooze-btn" disabled>⏱ 30 Days</button>
 
-      wireSnoozeButton("snooze-4h",  () => 4,              "4 hours");
-      wireSnoozeButton("snooze-24h", () => 24,             "24 hours");
-      wireSnoozeButton("snooze-nbd", nextBusinessDayHours, "next business day");
-      wireSnoozeButton("snooze-nw",  () => 168,            "next week");
-      wireSnoozeButton("snooze-13d", () => 312,            "13 days");
-      wireSnoozeButton("snooze-30d", () => 720,            "30 days");
+  <div id="status" class="status">
+    <strong>Status</strong>
+    Loading…
+  </div>
+
+<script>
+  Office.onReady(async (info) => {
+    if (info.host !== Office.HostType.Outlook) return;
+
+    wireSnoozeButton("snooze-4h",  () => 4,                    "4 hours");
+    wireSnoozeButton("snooze-24h", () => 24,                   "24 hours");
+    wireSnoozeButton("snooze-nbd", nextBusinessDayHours,        "next business day");
+    wireSnoozeButton("snooze-nw",  () => 168,                   "next week");
+    wireSnoozeButton("snooze-13d", () => 312,                   "13 days");
+    wireSnoozeButton("snooze-30d", () => 720,                   "30 days");
+
+    // Wait for the email to be fully loaded before enabling buttons
+    await waitForItemReady();
+  });
+
+  /**
+   * Waits until internetMessageId is available (email fully loaded),
+   * then enables all snooze buttons. Retries up to 10 times with 600ms gaps.
+   */
+  async function waitForItemReady() {
+    const loadingMsg = document.getElementById("loading-msg");
+    loadingMsg.style.display = "block";
+    setStatus("Status", "Waiting for email to fully load…");
+
+    const item = Office.context.mailbox.item;
+    if (!item) {
+      setStatus("Error", "No email selected. Please open an email first.");
+      return;
+    }
+
+    let attempts = 0;
+    const maxAttempts = 10;
+
+    const ready = await new Promise((resolve) => {
+      const tryGet = () => {
+        item.internetMessageId.getAsync((result) => {
+          if (result.status === Office.AsyncResultStatus.Succeeded && result.value) {
+            resolve(true);
+          } else if (attempts < maxAttempts) {
+            attempts++;
+            console.warn(`Waiting for email to load, attempt ${attempts}…`);
+            setTimeout(tryGet, 600);
+          } else {
+            console.warn("Email did not fully load after retries, enabling anyway.");
+            resolve(false);
+          }
+        });
+      };
+      tryGet();
     });
 
-    function nextBusinessDayHours() {
-      const now = new Date();
-      const target = new Date(now);
+    loadingMsg.style.display = "none";
 
-      const day = now.getDay();
-      let daysToAdd;
-
-      if (day === 5) daysToAdd = 3;       // Friday -> Monday
-      else if (day === 6) daysToAdd = 2;  // Saturday -> Monday
-      else if (day === 0) daysToAdd = 1;  // Sunday -> Monday
-      else daysToAdd = 1;                 // Weekday -> next day
-
-      target.setDate(now.getDate() + daysToAdd);
-      target.setHours(9, 0, 0, 0);
-
-      return Math.round((target - now) / (1000 * 60 * 60));
+    if (ready) {
+      setStatus("Status", "Ready.");
+    } else {
+      setStatus("Status", "Ready (email may not be fully loaded — if snooze fails, try opening the email fully).");
     }
 
-    function wireSnoozeButton(id, getHours, label) {
-      const button = document.getElementById(id);
-      if (!button) return;
+    setAllButtonsEnabled(true);
+  }
 
-      button.addEventListener("click", async () => {
-        setAllButtonsEnabled(false);
-        setStatus("Status", `Snoozing until ${label}...`);
+  /**
+   * Returns the number of hours until 9 AM on the next business day.
+   * Mon–Thu: next calendar day at 9 AM
+   * Fri:     Monday at 9 AM
+   * Sat:     Monday at 9 AM
+   * Sun:     Monday at 9 AM
+   */
+  function nextBusinessDayHours() {
+    const now = new Date();
+    const target = new Date(now);
 
-        try {
-          const item = Office.context.mailbox.item;
-          if (!item) {
-            throw new Error("No email selected.");
-          }
+    const day = now.getDay(); // 0=Sun,1=Mon,...,6=Sat
+    let daysToAdd;
+    if (day === 5) daysToAdd = 3;      // Fri → Mon
+    else if (day === 6) daysToAdd = 2; // Sat → Mon
+    else if (day === 0) daysToAdd = 1; // Sun → Mon
+    else daysToAdd = 1;                // Mon–Thu → next day
 
-          const ewsId = item.itemId;
-          if (!ewsId) {
-            throw new Error("Could not get the email ID.");
-          }
+    target.setDate(now.getDate() + daysToAdd);
+    target.setHours(9, 0, 0, 0); // 9:00 AM
 
-          let restId = null;
-          try {
-            restId = Office.context.mailbox.convertToRestId(
-              ewsId,
-              Office.MailboxEnums.RestVersion.v2_0
-            );
-          } catch (e) {
-            console.warn("convertToRestId failed:", e);
-          }
+    const msUntilTarget = target - now;
+    return msUntilTarget / (1000 * 60 * 60); // convert ms to hours
+  }
 
-          const hours = Number(getHours());
+  /**
+   * Tries to get the best available email ID in order:
+   * 1. convertToRestId (Graph-compatible)
+   * 2. internetMessageId (with retries)
+   * 3. Raw EWS itemId as fallback
+   */
+  async function getBestItemId(item) {
+    const rawId = item.itemId;
 
-          const payload = {
-            itemId: restId || ewsId,
-            ewsId: ewsId,
-            restId: restId,
-            internetMessageId: item.internetMessageId || null,
-            subject: item.subject || null,
-            hours: hours
-          };
+    // 1. Try convertToRestId first
+    try {
+      const restId = Office.context.mailbox.convertToRestId(
+        rawId,
+        Office.MailboxEnums.RestVersion.v2_0
+      );
+      if (restId && restId !== rawId) {
+        console.log("Using restId:", restId);
+        return restId;
+      }
+    } catch (e) {
+      console.warn("convertToRestId failed:", e);
+    }
 
-          console.log("Sending snooze payload:", payload);
-
-          const response = await fetch("/api/snooze", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(payload)
+    // 2. Try internet message ID with retries
+    try {
+      const msgId = await new Promise((resolve, reject) => {
+        let attempts = 0;
+        const tryGet = () => {
+          item.internetMessageId.getAsync((result) => {
+            if (result.status === Office.AsyncResultStatus.Succeeded && result.value) {
+              resolve(result.value);
+            } else if (attempts < 3) {
+              attempts++;
+              console.warn(`internetMessageId attempt ${attempts} failed, retrying...`);
+              setTimeout(tryGet, 500);
+            } else {
+              reject(result.error);
+            }
           });
-
-          const responseText = await response.text().catch(() => "");
-
-          if (!response.ok) {
-            throw new Error(responseText || `API returned ${response.status}`);
-          }
-
-          const wakeTime = new Date(Date.now() + hours * 60 * 60 * 1000);
-          const dateStr = wakeTime.toLocaleDateString([], {
-            weekday: "short",
-            month: "short",
-            day: "numeric"
-          });
-          const timeStr = wakeTime.toLocaleTimeString([], {
-            hour: "2-digit",
-            minute: "2-digit"
-          });
-
-          setStatus("Snoozed ✓", `This email will return to your inbox on ${dateStr} at ${timeStr}.`);
-        } catch (err) {
-          console.error("Snooze error:", err);
-          setStatus("Error", err && err.message ? err.message : String(err));
-        } finally {
-          setAllButtonsEnabled(true);
-        }
+        };
+        tryGet();
       });
+      if (msgId) {
+        console.log("Using internetMessageId:", msgId);
+        return msgId;
+      }
+    } catch (e) {
+      console.warn("internetMessageId failed after retries:", e);
     }
 
-    function setAllButtonsEnabled(enabled) {
-      document.querySelectorAll(".snooze-btn").forEach(btn => {
-        btn.disabled = !enabled;
-      });
-    }
+    // 3. Fall back to raw EWS ID
+    console.warn("Falling back to raw itemId:", rawId);
+    return rawId;
+  }
 
-    function setStatus(title, message) {
-      const el = document.getElementById("status");
-      el.innerHTML = `<strong>${escapeHtml(title)}</strong>${escapeHtml(message)}`;
-    }
+  function wireSnoozeButton(id, getHours, label) {
+    document.getElementById(id).addEventListener("click", async () => {
+      setAllButtonsEnabled(false);
+      setStatus("Status", `Snoozing until ${label}…`);
+      try {
+        const item = Office.context.mailbox.item;
+        if (!item) throw new Error("No email selected.");
 
-    function escapeHtml(str) {
-      return String(str).replace(/[&<>"']/g, (m) => {
-        return {
-          "&": "&amp;",
-          "<": "&lt;",
-          ">": "&gt;",
-          "\"": "&quot;",
-          "'": "&#39;"
-        }[m];
-      });
-    }
-  </script>
+        const restId = await getBestItemId(item);
+        if (!restId) throw new Error("Could not get email ID. Are you reading an email?");
+
+        console.log("restId:", restId);
+
+        const hours = Math.round(getHours());
+        console.log("Snoozing for hours:", hours);
+
+        const response = await fetch("/api/snooze", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ itemId: restId, hours: hours })
+        });
+
+        console.log("Response status:", response.status);
+
+        if (!response.ok) throw new Error(`API returned ${response.status}`);
+
+        const wakeTime = new Date(Date.now() + hours * 60 * 60 * 1000);
+        const dateStr = wakeTime.toLocaleDateString([], { weekday: 'short', month: 'short', day: 'numeric' });
+        const timeStr = wakeTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+        setStatus("Snoozed ✓", `This email will return to your inbox on ${dateStr} at ${timeStr}.`);
+        setAllButtonsEnabled(true);
+      } catch (err) {
+        console.error("Snooze error:", err);
+        setStatus("Error", err?.message || String(err));
+        setAllButtonsEnabled(true);
+      }
+    });
+  }
+
+  function setAllButtonsEnabled(enabled) {
+    document.querySelectorAll(".snooze-btn").forEach(btn => btn.disabled = !enabled);
+  }
+
+  function setStatus(title, message) {
+    const el = document.getElementById("status");
+    el.innerHTML = `<strong>${escapeHtml(title)}</strong>${escapeHtml(message)}`;
+  }
+
+  function escapeHtml(str) {
+    return String(str).replace(/[&<>"']/g, m =>
+      ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[m])
+    );
+  }
+</script>
 </body>
 </html>
