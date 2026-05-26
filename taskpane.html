@@ -66,15 +66,29 @@
   <div id="status"></div>
 
   <script>
-    Office.onReady((info) => {
-      if (info.host !== Office.HostType.Outlook) return;
+ Office.onReady((info) => {
+  if (info.host !== Office.HostType.Outlook) return;
 
-      wireSnoozeButton("snooze-4h",  () => 4,              "4 hours");
-      wireSnoozeButton("snooze-24h", () => 24,             "24 hours");
-      wireSnoozeButton("snooze-nbd", nextBusinessDayHours, "next business day");
-      wireSnoozeButton("snooze-nw",  () => 168,            "next week");
-      wireSnoozeButton("snooze-13d", () => 312,            "13 days");
-      wireSnoozeButton("snooze-30d", () => 720,            "30 days");
+  // Add this block:
+  Office.context.mailbox.addHandlerAsync(
+    Office.EventType.ItemChanged,
+    () => {
+      const newItem = Office.context.mailbox.item;
+      if (newItem) {
+        setStatus("", "Ready to snooze.");
+      } else {
+        setStatus("", "No email selected.");
+      }
+    }
+  );
+
+  wireSnoozeButton("snooze-4h",  () => 4,              "4 hours");
+  wireSnoozeButton("snooze-24h", () => 24,             "24 hours");
+  wireSnoozeButton("snooze-nbd", nextBusinessDayHours, "next business day");
+  wireSnoozeButton("snooze-nw",  () => 168,            "next week");
+  wireSnoozeButton("snooze-13d", () => 312,            "13 days");
+  wireSnoozeButton("snooze-30d", () => 720,            "30 days");
+});
     });
 
     function nextBusinessDayHours() {
