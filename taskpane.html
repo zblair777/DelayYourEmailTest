@@ -69,6 +69,20 @@
     Office.onReady((info) => {
       if (info.host !== Office.HostType.Outlook) return;
 
+      try {
+        Office.context.mailbox.addHandlerAsync(
+          Office.EventType.ItemChanged,
+          () => { /* just needs to exist */ },
+          (result) => {
+            if (result.status === Office.AsyncResultStatus.Failed) {
+              console.warn("ItemChanged handler failed to register:", result.error.message);
+            }
+          }
+        );
+      } catch (e) {
+        console.warn("addHandlerAsync not supported:", e);
+      }
+
       wireSnoozeButton("snooze-4h",  () => 4,              "4 hours");
       wireSnoozeButton("snooze-24h", () => 24,             "24 hours");
       wireSnoozeButton("snooze-nbd", nextBusinessDayHours, "next business day");
