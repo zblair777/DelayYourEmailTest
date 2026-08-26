@@ -94,6 +94,9 @@
       wireSnoozeButton("snooze-nw",  () => 168,            "next week");
       wireSnoozeButton("snooze-13d", () => 312,            "13 days");
       wireSnoozeButton("snooze-30d", () => 720,            "30 days");
+
+      wireComingSoonButton("sendat-today");
+      wireComingSoonButton("sendat-friday");
     });
 
     function nextBusinessDayHours() {
@@ -186,6 +189,15 @@
         } finally {
           setAllButtonsEnabled(true);
         }
+      });
+    }
+
+    function wireComingSoonButton(id) {
+      const button = document.getElementById(id);
+      if (!button) return;
+
+      button.addEventListener("click", () => {
+        setStatus("Coming soon", "This option isn't available yet.");
       });
     }
 
