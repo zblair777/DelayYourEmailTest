@@ -56,17 +56,12 @@
   <div>Please select an amount of time you would like this email snoozed.</div>
   <br />
 
-  <button id="snooze-2h" class="snooze-btn">2 Hours</button>
   <button id="snooze-4h" class="snooze-btn">4 Hours</button>
   <button id="snooze-24h" class="snooze-btn">24 Hours</button>
   <button id="snooze-nbd" class="snooze-btn">Next Business Day</button>
   <button id="snooze-nw" class="snooze-btn">Next Week</button>
   <button id="snooze-13d" class="snooze-btn">13 Days</button>
   <button id="snooze-30d" class="snooze-btn">30 Days</button>
-  <button id="snooze-69d" class="snooze-btn">69 Days</button>
-
-  <button id="sendat-today" class="snooze-btn">4:13 Today</button>
-  <button id="sendat-friday" class="snooze-btn">4:13 Friday</button>
 
   <div id="status"></div>
 
@@ -88,17 +83,12 @@
         console.warn("addHandlerAsync not supported:", e);
       }
 
-      wireSnoozeButton("snooze-2h",  () => 2,              "2 hours");
       wireSnoozeButton("snooze-4h",  () => 4,              "4 hours");
       wireSnoozeButton("snooze-24h", () => 24,             "24 hours");
       wireSnoozeButton("snooze-nbd", nextBusinessDayHours, "next business day");
       wireSnoozeButton("snooze-nw",  () => 168,            "next week");
       wireSnoozeButton("snooze-13d", () => 312,            "13 days");
       wireSnoozeButton("snooze-30d", () => 720,            "30 days");
-      wireSnoozeButton("snooze-69d", () => 1656,           "69 days");
-
-      wireComingSoonButton("sendat-today");
-      wireComingSoonButton("sendat-friday");
     });
 
     function nextBusinessDayHours() {
@@ -191,15 +181,6 @@
         } finally {
           setAllButtonsEnabled(true);
         }
-      });
-    }
-
-    function wireComingSoonButton(id) {
-      const button = document.getElementById(id);
-      if (!button) return;
-
-      button.addEventListener("click", () => {
-        setStatus("Coming soon", "This option isn't available yet.");
       });
     }
 
