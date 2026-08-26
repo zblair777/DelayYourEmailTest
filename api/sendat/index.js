@@ -17,6 +17,19 @@ module.exports = async function (context, req) {
     return;
   }
 
+  // The flow trigger URL has not been filled in yet; fail with a clear message
+  // instead of a cryptic fetch error.
+  if (!POWER_AUTOMATE_URL || POWER_AUTOMATE_URL.indexOf("REPLACE_WITH") === 0) {
+    context.log.error("Sendat flow URL is not configured");
+
+    context.res = {
+      status: 503,
+      headers: CORS_HEADERS,
+      body: "Scheduled email is not configured yet. Add the Power Automate trigger URL to api/sendat/index.js."
+    };
+    return;
+  }
+
   try {
     const body = req.body || {};
 
