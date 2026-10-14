@@ -62,7 +62,7 @@
   <button id="snooze-nbd" class="snooze-btn">Next Business Day</button>
   <button id="snooze-nw" class="snooze-btn">Next Week</button>
   <button id="snooze-13d" class="snooze-btn">13 Days</button>
-  <button id="snooze-30d" class="snooze-btn">30 Days</button>
+  <button id="snooze-29d" class="snooze-btn">29 Days</button>
 
   <div id="status"></div>
 
@@ -90,7 +90,7 @@
       wireSnoozeButton("snooze-nbd", nextBusinessDayHours, "next business day");
       wireSnoozeButton("snooze-nw",  () => 168,            "next week");
       wireSnoozeButton("snooze-13d", () => 312,            "13 days");
-      wireSnoozeButton("snooze-30d", () => 720,            "30 days");
+      wireSnoozeButton("snooze-29d", () => 696,            "29 days");
     });
 
     function nextBusinessDayHours() {
